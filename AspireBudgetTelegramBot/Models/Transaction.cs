@@ -17,6 +17,7 @@ namespace AspireBudgetTelegramBot.Models
         public string AccountFrom { get;set; }
         public string AccountTo { get;set; }
         public string Category { get; set; }
+        public string Memo { get; set; }
 
         public TransactionStep GetCurrentStep()
         {

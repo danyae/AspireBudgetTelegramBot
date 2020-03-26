@@ -117,13 +117,14 @@ namespace AspireBudgetTelegramBot.Services
 
         public void ProcessSum(TelegramMessage msg)
         {
-            if (double.TryParse(msg.Text, out var sum))
+            var msgPars = msg.Text.Split(' ', 2);
+            if (msgPars.Length == 0 || !double.TryParse(msgPars[0], out var sum))
             {
-                CurrentTransaction.Sum = sum;
-                return;
+                throw new TransactionAbortException();
             }
 
-            throw new TransactionAbortException();
+            CurrentTransaction.Sum = sum;
+            CurrentTransaction.Memo = msgPars.Length > 1 ? msgPars[1] : null;
         }
 
         public void ProcessType(TelegramMessage msg)
@@ -201,7 +202,8 @@ namespace AspireBudgetTelegramBot.Services
                         Category = CurrentTransaction.Category,
                         Cleared = "🆗",
                         Date = CurrentTransaction.Date.Value,
-                        Outflow = CurrentTransaction.Sum.Value
+                        Outflow = CurrentTransaction.Sum.Value,
+                        Memo = CurrentTransaction.Memo
                     });
                     break;
                 case Transaction.TypeIncome:
@@ -211,7 +213,8 @@ namespace AspireBudgetTelegramBot.Services
                         Category = CurrentTransaction.Category,
                         Cleared = "🆗",
                         Date = CurrentTransaction.Date.Value,
-                        Inflow = CurrentTransaction.Sum.Value
+                        Inflow = CurrentTransaction.Sum.Value,
+                        Memo = CurrentTransaction.Memo
                     });
                     break;
                 case Transaction.TypeTransfer:
@@ -221,7 +224,8 @@ namespace AspireBudgetTelegramBot.Services
                         Category = "↕️ Account Transfer",
                         Cleared = "🆗",
                         Date = CurrentTransaction.Date.Value,
-                        Outflow = CurrentTransaction.Sum.Value
+                        Outflow = CurrentTransaction.Sum.Value,
+                        Memo = CurrentTransaction.Memo
                     });
                     await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
                     {
@@ -229,7 +233,8 @@ namespace AspireBudgetTelegramBot.Services
                         Category = "↕️ Account Transfer",
                         Cleared = "🆗",
                         Date = CurrentTransaction.Date.Value,
-                        Inflow = CurrentTransaction.Sum.Value
+                        Inflow = CurrentTransaction.Sum.Value,
+                        Memo = CurrentTransaction.Memo
                     });
                     break;
             }
