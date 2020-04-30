@@ -7,6 +7,6 @@ namespace AspireBudgetTelegramBot.Options
     public class AspireOptions
     {
         public string SheetId { get; set; }
-        public string ApiCredentialsFile { get; set; }
+        public string ApiCredentialsBase64 { get; set; }
     }
 }

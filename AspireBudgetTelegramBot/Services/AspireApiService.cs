@@ -27,7 +27,7 @@ namespace AspireBudgetTelegramBot.Services
         public AspireApiService(ILogger<AspireApiService> logger,
             IOptions<AspireOptions> options)
         {
-            string json = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, options.Value.ApiCredentialsFile), Encoding.UTF8);
+            string json = Encoding.UTF8.GetString(Convert.FromBase64String(options.Value.ApiCredentialsBase64));
             _api = new AspireBudgetApi.AspireBudgetApi(json, options.Value.SheetId, logger);
             _logger = logger;
         }
