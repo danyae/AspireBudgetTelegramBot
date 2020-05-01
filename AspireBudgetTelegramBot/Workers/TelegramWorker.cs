@@ -31,7 +31,7 @@ namespace AspireBudgetTelegramBot.Workers
             _logger = logger;
         }
 
-        private async void BotOnMessage(object? sender, MessageEventArgs e)
+        private async void BotOnMessage(object sender, MessageEventArgs e)
         {
             if (e.Message.Type != MessageType.Text) { return; }
 

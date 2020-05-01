@@ -1,243 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AspireBudgetTelegramBot.Extensions;
-using AspireBudgetTelegramBot.Models;
-using AspireBudgetTelegramBot.Options;
+using AspireBudgetApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Telegram.Bot.Types.ReplyMarkups;
-using Transaction = AspireBudgetTelegramBot.Models.Transaction;
+using AspireBudgetTelegramBot.Options;
 
 namespace AspireBudgetTelegramBot.Services
 {
     public class AspireApiService : IDisposable
     {
-        public static Transaction CurrentTransaction { get; set; }
-
-        private static List<string> Accounts { get; set; }
-        private static List<string> Categories { get; set; }
-
-        private readonly ILogger<AspireApiService> _logger;
         private readonly AspireBudgetApi.AspireBudgetApi _api;
 
+        private List<string> _categories;
+        private List<string> _accounts;
+
         public AspireApiService(ILogger<AspireApiService> logger,
-            IOptions<AspireOptions> options)
+            IOptions<AspireOptions> options
+            )
         {
             string json = Encoding.UTF8.GetString(Convert.FromBase64String(options.Value.ApiCredentialsBase64));
             _api = new AspireBudgetApi.AspireBudgetApi(json, options.Value.SheetId, logger);
-            _logger = logger;
         }
 
-        public async Task<TelegramReplyMessage> GetDashboard(TelegramMessage msg)
+        public async Task<List<string>> GetCategoriesAsync()
         {
-            var dashboard = await _api.GetDashboardAsync();
-            return new TelegramReplyMessage
-            {
-                ChatId = msg.ChatId,
-                ReplyMarkup = new ReplyKeyboardRemove(),
-                Text = dashboard.ToSummary()
-            };
+            _categories ??= await _api.GetCategoriesAsync();
+            return _categories;
         }
         
-        public async Task<TelegramReplyMessage> ProcessTransactionStep(TelegramMessage msg)
+        public async Task<List<string>> GetAccountsAsync()
         {
-            await TryInitNewTransaction();
-
-            try
-            {
-                switch (CurrentTransaction.GetCurrentStep())
-                {
-                    case TransactionStep.Sum:
-                        ProcessSum(msg);
-                        return TelegramReplyMessage.RequestTypeMessage(msg);
-                    case TransactionStep.Type:
-                        ProcessType(msg);
-                        return TelegramReplyMessage.RequestDateMessage(msg);
-                    case TransactionStep.Date:
-                        ProcessDate(msg);
-                        var accounts = await _api.GetAccountsAsync();
-                        return TelegramReplyMessage.RequestAccountFromMessage(msg, accounts); 
-                    case TransactionStep.AccountFrom:
-                        ProcessAccountFrom(msg);
-                        if (CurrentTransaction.Type == Transaction.TypeTransfer)
-                        {
-                            return TelegramReplyMessage.RequestAccountToMessage(msg, Accounts);
-                        }
-                        else
-                        {
-                            return TelegramReplyMessage.RequestCategoryMessage(msg, Categories);
-                        } 
-                    case TransactionStep.AccountToOrCategory:
-                        await ProcessAccountToOrCategory(msg);
-                        RemoveTransaction();
-                        return TelegramReplyMessage.OperationCompletedMessage(msg);
-                    default:
-                        throw new TransactionAbortException();
-                }
-            }
-            catch (Exception ex)
-            {
-                if (!(ex is TransactionAbortException))
-                {
-                    _logger.LogError(ex, ex.Message);
-                }
-                RemoveTransaction();
-                return TelegramReplyMessage.UnknownOperationMessage(msg);
-            }
+            _accounts ??= await _api.GetAccountsAsync();
+            return _accounts;
         }
 
-        private async Task TryInitNewTransaction()
+        public async Task ReloadCacheAsync()
         {
-            if (CurrentTransaction == null)
-            {
-                CurrentTransaction = new Transaction();
-            }
-
-            if (Categories == null)
-            {
-                Categories = await _api.GetCategoriesAsync();
-            }
-
-            if (Accounts == null)
-            {
-                Accounts = await _api.GetAccountsAsync();
-            }
+            _accounts = null;
+            _categories = null;
+            await GetCategoriesAsync();
+            await GetAccountsAsync();
         }
 
-        private void RemoveTransaction()
+        public async Task<List<DashboardRow>> GetDashboardAsync()
         {
-            CurrentTransaction = null;
-            Categories = null;
-            Accounts = null;
+            return await _api.GetDashboardAsync();
         }
 
-        public void ProcessSum(TelegramMessage msg)
+        public async Task SaveTransactionAsync(AspireBudgetApi.Models.Transaction transaction)
         {
-            var msgPars = msg.Text.Split(' ', 2);
-            if (msgPars.Length == 0 || !double.TryParse(msgPars[0], out var sum))
-            {
-                throw new TransactionAbortException();
-            }
-
-            CurrentTransaction.Sum = sum;
-            CurrentTransaction.Memo = msgPars.Length > 1 ? msgPars[1] : null;
-        }
-
-        public void ProcessType(TelegramMessage msg)
-        {
-            if (msg.Text == Transaction.TypeTransfer || msg.Text == Transaction.TypeOutcome 
-                                                     || msg.Text == Transaction.TypeIncome)
-            {
-                CurrentTransaction.Type = msg.Text;
-                return;
-            }
-
-            throw new TransactionAbortException();
-        }
-
-        public void ProcessDate(TelegramMessage msg)
-        {
-            if (byte.TryParse(msg.Text, out var day) && day > 0 && day < 32)
-            {
-                var transactionDate = DateTime.Now;
-                if (transactionDate.Day > day)
-                {
-                    transactionDate = new DateTime(transactionDate.Year, transactionDate.Month, day);
-                }
-
-                if (transactionDate.Day < day)
-                {
-                    transactionDate = new DateTime(transactionDate.Year, transactionDate.Month-1, day);
-                }
-
-                CurrentTransaction.Date = transactionDate;
-                return;
-            }
-
-            throw new TransactionAbortException();
-        }
-
-        public void ProcessAccountFrom(TelegramMessage msg)
-        {
-            if (!Accounts.Contains(msg.Text))
-            {
-                throw new TransactionAbortException();
-            }
-
-            CurrentTransaction.AccountFrom = msg.Text;
-        }
-
-        public async Task ProcessAccountToOrCategory(TelegramMessage msg)
-        {
-            if (CurrentTransaction.Type == Transaction.TypeTransfer)
-            {
-                var accounts = await _api.GetAccountsAsync();
-                if (!accounts.Contains(msg.Text))
-                {
-                    throw new TransactionAbortException();
-                }
-                CurrentTransaction.AccountTo = msg.Text;
-            }
-            else
-            {
-                var categories = await _api.GetCategoriesAsync();
-                if (!categories.Contains(msg.Text))
-                {
-                    throw new TransactionAbortException();
-                }
-                CurrentTransaction.Category = msg.Text;
-            }
-
-
-            switch (CurrentTransaction.Type)
-            {
-                case Transaction.TypeOutcome:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = CurrentTransaction.AccountFrom,
-                        Category = CurrentTransaction.Category,
-                        Cleared = "🆗",
-                        Date = CurrentTransaction.Date.Value,
-                        Outflow = CurrentTransaction.Sum.Value,
-                        Memo = CurrentTransaction.Memo
-                    });
-                    break;
-                case Transaction.TypeIncome:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = CurrentTransaction.AccountFrom,
-                        Category = CurrentTransaction.Category,
-                        Cleared = "🆗",
-                        Date = CurrentTransaction.Date.Value,
-                        Inflow = CurrentTransaction.Sum.Value,
-                        Memo = CurrentTransaction.Memo
-                    });
-                    break;
-                case Transaction.TypeTransfer:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = CurrentTransaction.AccountFrom,
-                        Category = "↕️ Account Transfer",
-                        Cleared = "🆗",
-                        Date = CurrentTransaction.Date.Value,
-                        Outflow = CurrentTransaction.Sum.Value,
-                        Memo = CurrentTransaction.Memo
-                    });
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = CurrentTransaction.AccountTo,
-                        Category = "↕️ Account Transfer",
-                        Cleared = "🆗",
-                        Date = CurrentTransaction.Date.Value,
-                        Inflow = CurrentTransaction.Sum.Value,
-                        Memo = CurrentTransaction.Memo
-                    });
-                    break;
-            }
+            await _api.SaveTransactionAsync(transaction);
         }
 
         public void Dispose()

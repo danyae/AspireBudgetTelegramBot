@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,23 +11,21 @@ namespace AspireBudgetTelegramBot.Workers
 {
     public class IncomingMessageWorker : BackgroundService
     {
-        private readonly ILogger<IncomingMessageWorker> _logger;
         private readonly IBackgroundQueue<TelegramMessage> _incomingQueue;
         private readonly IBackgroundQueue<TelegramReplyMessage> _outgoingQueue;
-        private readonly AspireApiService _api;
         private readonly IAuthenticateService _authService;
+        private readonly IServiceProvider _serviceProvider;
 
         public IncomingMessageWorker(IBackgroundQueue<TelegramMessage> incomingQueue,
             IBackgroundQueue<TelegramReplyMessage> outgoingQueue,
-            AspireApiService api,
             IAuthenticateService authService,
-            ILogger<IncomingMessageWorker> logger)
+            IServiceProvider serviceProvider
+            )
         {
             _incomingQueue = incomingQueue;
             _outgoingQueue = outgoingQueue;
-            _api = api;
             _authService = authService;
-            _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,13 +62,22 @@ namespace AspireBudgetTelegramBot.Workers
                 }
 
                 TelegramReplyMessage reply;
-                if (msg.Text == "dashboard")
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    reply = await _api.GetDashboard(msg);
-                }
-                else
-                {
-                    reply = await _api.ProcessTransactionStep(msg);
+                    var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
+                    switch (msg.Text)
+                    {
+                        case "dashboard":
+                            reply = await transactionService.GetDashboardAsync(msg);
+                            break;
+                        case "reload":
+                            await transactionService.ReloadCacheAsync(msg);
+                            reply = TelegramReplyMessage.OperationCompletedMessage(msg);
+                            break;
+                        default:
+                            reply = await transactionService.ProcessTransactionStepAsync(msg);
+                            break;
+                    }
                 }
                 await _outgoingQueue.Write(reply);
             }

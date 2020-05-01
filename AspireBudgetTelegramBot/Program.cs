@@ -4,6 +4,7 @@ using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Options;
 using AspireBudgetTelegramBot.Services;
 using AspireBudgetTelegramBot.Workers;
+using MediatR;
 
 namespace AspireBudgetTelegramBot
 {
@@ -21,13 +22,17 @@ namespace AspireBudgetTelegramBot
                 {
                     services.Configure<TelegramOptions>(hostContext.Configuration.GetSection(nameof(TelegramOptions)))
                         .Configure<AspireOptions>(hostContext.Configuration.GetSection(nameof(AspireOptions)))
-                        .AddSingleton(typeof(IBackgroundQueue<TelegramMessage>), typeof(BackgroundQueue<TelegramMessage>))
-                        .AddSingleton(typeof(IBackgroundQueue<TelegramReplyMessage>), typeof(BackgroundQueue<TelegramReplyMessage>))
+                        .AddSingleton(typeof(IBackgroundQueue<TelegramMessage>),
+                            typeof(BackgroundQueue<TelegramMessage>))
+                        .AddSingleton(typeof(IBackgroundQueue<TelegramReplyMessage>),
+                            typeof(BackgroundQueue<TelegramReplyMessage>))
                         .AddSingleton<TelegramBotService>()
                         .AddSingleton<AspireApiService>()
                         .AddSingleton(typeof(IAuthenticateService), typeof(InMemoryAuthenticateService))
+                        .AddScoped<TransactionService>()
                         .AddHostedService<TelegramWorker>()
-                        .AddHostedService<IncomingMessageWorker>();
+                        .AddHostedService<IncomingMessageWorker>()
+                        .AddMediatR(typeof(Program));
                 });
     }
 }

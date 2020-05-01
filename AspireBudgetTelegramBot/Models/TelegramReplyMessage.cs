@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AspireBudgetApi.Models;
+using AspireBudgetTelegramBot.Extensions;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -10,7 +12,17 @@ namespace AspireBudgetTelegramBot.Models
     public class TelegramReplyMessage : TelegramMessage
     {
         public IReplyMarkup ReplyMarkup { get; set; }
-
+        
+        public static TelegramReplyMessage DashboardMessage(TelegramMessage msg, List<DashboardRow> dashboardRows)
+        {
+            return new TelegramReplyMessage
+            {
+                ChatId = msg.ChatId,
+                ReplyMarkup = new ReplyKeyboardRemove(),
+                Text = dashboardRows.ToSummary()
+            };
+        }
+        
         public static TelegramReplyMessage UnknownOperationMessage(TelegramMessage msg)
         {
             return new TelegramReplyMessage
