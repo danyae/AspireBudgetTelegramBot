@@ -5,6 +5,7 @@
 Aspire*.json
 appsettings.Development.json
 appsettings.Production.json
+NuGet.config
 
 # User-specific files
 *.suo
