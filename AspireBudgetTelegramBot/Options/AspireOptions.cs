@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AspireBudgetTelegramBot.Options
+﻿namespace AspireBudgetTelegramBot.Options
 {
     public class AspireOptions
     {

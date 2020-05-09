@@ -49,7 +49,7 @@ namespace AspireBudgetTelegramBot.Services
             return await _api.GetDashboardAsync();
         }
 
-        public async Task SaveTransactionAsync(AspireBudgetApi.Models.Transaction transaction)
+        public async Task SaveTransactionAsync(Transaction transaction)
         {
             await _api.SaveTransactionAsync(transaction);
         }

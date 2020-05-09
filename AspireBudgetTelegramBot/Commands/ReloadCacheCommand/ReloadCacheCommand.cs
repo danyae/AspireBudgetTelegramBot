@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AspireBudgetTelegramBot.Commands.ReloadCacheCommand
 {
-    public class ReloadCacheCommand : IRequest<TelegramReplyMessage>
+    public class ReloadCacheCommand : IRequest
     {
         public TelegramMessage Message { get; private set; }
         

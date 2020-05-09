@@ -9,7 +9,7 @@ namespace AspireBudgetTelegramBot.Commands.AccountToOrCategoryCommand
     /// <summary>
     /// Fill in account to or category
     /// </summary>
-    public class AccountToOrCategoryCommandHandler : IRequestHandler<AccountToOrCategoryCommand, TelegramReplyMessage>
+    public class AccountToOrCategoryCommandHandler : AsyncRequestHandler<AccountToOrCategoryCommand>
     {
         private readonly AspireApiService _api;
         
@@ -18,7 +18,7 @@ namespace AspireBudgetTelegramBot.Commands.AccountToOrCategoryCommand
             _api = api;
         }
         
-        public async Task<TelegramReplyMessage> Handle(AccountToOrCategoryCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(AccountToOrCategoryCommand request, CancellationToken cancellationToken)
         {
             if (request.Transaction.Type == Transaction.TypeTransfer)
             {
@@ -84,8 +84,6 @@ namespace AspireBudgetTelegramBot.Commands.AccountToOrCategoryCommand
                     });
                     break;
             }
-            
-            return TelegramReplyMessage.OperationCompletedMessage(request.Message);
         }
     }
 }

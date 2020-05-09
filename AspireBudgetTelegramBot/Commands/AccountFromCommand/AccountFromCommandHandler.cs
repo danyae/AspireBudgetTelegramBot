@@ -9,7 +9,7 @@ namespace AspireBudgetTelegramBot.Commands.AccountFromCommand
     /// <summary>
     /// Fill in account from
     /// </summary>
-    public class AccountFromCommandHandler : IRequestHandler<AccountFromCommand, TelegramReplyMessage>
+    public class AccountFromCommandHandler : AsyncRequestHandler<AccountFromCommand>
     {
         private readonly AspireApiService _api;
         
@@ -18,7 +18,7 @@ namespace AspireBudgetTelegramBot.Commands.AccountFromCommand
             _api = api;
         }
         
-        public async Task<TelegramReplyMessage> Handle(AccountFromCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(AccountFromCommand request, CancellationToken cancellationToken)
         {
             var accounts = await _api.GetAccountsAsync();
             
@@ -28,13 +28,6 @@ namespace AspireBudgetTelegramBot.Commands.AccountFromCommand
             }
 
             request.Transaction.AccountFrom = request.Message.Text;
-            if (request.Transaction.Type == Transaction.TypeTransfer)
-            {
-                return TelegramReplyMessage.RequestAccountToMessage(request.Message, accounts);
-            }
-
-            var categories = await _api.GetCategoriesAsync();
-            return TelegramReplyMessage.RequestCategoryMessage(request.Message, categories);
         }
     }
 }

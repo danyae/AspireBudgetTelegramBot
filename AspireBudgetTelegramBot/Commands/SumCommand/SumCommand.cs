@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AspireBudgetTelegramBot.Commands.SumCommand
 {
-    public class SumCommand : IRequest<TelegramReplyMessage>
+    public class SumCommand : IRequest
     {
         public TelegramMessage Message { get; private set; }
         public Transaction Transaction { get; private set; }

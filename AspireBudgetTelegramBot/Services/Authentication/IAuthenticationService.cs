@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AspireBudgetTelegramBot.Services
+﻿namespace AspireBudgetTelegramBot.Services.Authentication
 {
-    public interface IAuthenticateService
+    public interface IAuthenticationService
     {
         public bool AuthenticateChat(long chatId, string password);
         public bool IsAuthenticated(long chatId);

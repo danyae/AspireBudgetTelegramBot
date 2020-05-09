@@ -3,6 +3,8 @@ using Microsoft.Extensions.Hosting;
 using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Options;
 using AspireBudgetTelegramBot.Services;
+using AspireBudgetTelegramBot.Services.Authentication;
+using AspireBudgetTelegramBot.Services.BackgroundQueue;
 using AspireBudgetTelegramBot.Workers;
 using MediatR;
 
@@ -28,7 +30,7 @@ namespace AspireBudgetTelegramBot
                             typeof(BackgroundQueue<TelegramReplyMessage>))
                         .AddSingleton<TelegramBotService>()
                         .AddSingleton<AspireApiService>()
-                        .AddSingleton(typeof(IAuthenticateService), typeof(InMemoryAuthenticateService))
+                        .AddSingleton(typeof(IAuthenticationService), typeof(InMemoryAuthenticationService))
                         .AddScoped<TransactionService>()
                         .AddHostedService<TelegramWorker>()
                         .AddHostedService<IncomingMessageWorker>()

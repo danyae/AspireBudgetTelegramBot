@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace AspireBudgetTelegramBot.Services
+namespace AspireBudgetTelegramBot.Services.BackgroundQueue
 {
     public interface IBackgroundQueue<T>
     {

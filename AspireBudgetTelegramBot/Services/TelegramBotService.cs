@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Options;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MihaZupan;
 using Telegram.Bot;
@@ -38,8 +34,7 @@ namespace AspireBudgetTelegramBot.Services
             remove => BotClient.OnCallbackQuery -= value;
         }
 
-        public TelegramBotService(IOptions<TelegramOptions> options,
-            ILogger<TelegramBotService> logger)
+        public TelegramBotService(IOptions<TelegramOptions> options)
         {
             if (options == null)
             {

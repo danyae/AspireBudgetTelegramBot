@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
+﻿using System.Collections.Generic;
 using AspireBudgetTelegramBot.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AspireBudgetTelegramBot.Services
+namespace AspireBudgetTelegramBot.Services.Authentication
 {
-    public class InMemoryAuthenticateService : IAuthenticateService
+    public class InMemoryAuthenticationService : IAuthenticationService
     {
         private static readonly Dictionary<long, bool> AuthenticationResults = new Dictionary<long, bool>();
         private static readonly Dictionary<long, int> PendingAuthentications = new Dictionary<long, int>();
         private static readonly int MaxRetries = 4;
 
-        private readonly ILogger<InMemoryAuthenticateService> _logger;
+        private readonly ILogger<InMemoryAuthenticationService> _logger;
         private readonly TelegramOptions _options;
 
-        public InMemoryAuthenticateService(IOptions<TelegramOptions> options, ILogger<InMemoryAuthenticateService> logger)
+        public InMemoryAuthenticationService(IOptions<TelegramOptions> options, ILogger<InMemoryAuthenticationService> logger)
         {
             _logger = logger;
             _options = options.Value;

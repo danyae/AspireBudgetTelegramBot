@@ -2,12 +2,18 @@ using System;
 using System.Threading.Tasks;
 using AspireBudgetTelegramBot.Commands.AccountFromCommand;
 using AspireBudgetTelegramBot.Commands.AccountToOrCategoryCommand;
-using AspireBudgetTelegramBot.Commands.DashboardCommand;
 using AspireBudgetTelegramBot.Commands.DateCommand;
 using AspireBudgetTelegramBot.Commands.ReloadCacheCommand;
 using AspireBudgetTelegramBot.Commands.SumCommand;
 using AspireBudgetTelegramBot.Commands.TypeCommand;
 using AspireBudgetTelegramBot.Models;
+using AspireBudgetTelegramBot.Queries.AccountFromQuery;
+using AspireBudgetTelegramBot.Queries.AccountToQuery;
+using AspireBudgetTelegramBot.Queries.CategoryQuery;
+using AspireBudgetTelegramBot.Queries.CompleteQuery;
+using AspireBudgetTelegramBot.Queries.DashboardQuery;
+using AspireBudgetTelegramBot.Queries.DateQuery;
+using AspireBudgetTelegramBot.Queries.TypeQuery;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -30,12 +36,13 @@ namespace AspireBudgetTelegramBot.Services
         
         public async Task<TelegramReplyMessage> GetDashboardAsync(TelegramMessage msg)
         {
-            return await _mediator.Send(new DashboardCommand(msg));
+            return await _mediator.Send(new DashboardQuery(msg));
         }
         
         public async Task<TelegramReplyMessage> ReloadCacheAsync(TelegramMessage msg)
         {
-            return await _mediator.Send(new ReloadCacheCommand(msg));
+            await _mediator.Publish(new ReloadCacheCommand(msg));
+            return await _mediator.Send(new CompleteQuery(msg));
         } 
         
         public async Task<TelegramReplyMessage> ProcessTransactionStepAsync(TelegramMessage msg)
@@ -47,17 +54,26 @@ namespace AspireBudgetTelegramBot.Services
                 switch (CurrentTransaction.GetCurrentStep())
                 {
                     case TransactionStep.Sum:
-                        return await _mediator.Send(new SumCommand(msg, CurrentTransaction));
+                        await _mediator.Send(new SumCommand(msg, CurrentTransaction));
+                        return await _mediator.Send(new TypeQuery(msg));
                     case TransactionStep.Type:
-                        return await _mediator.Send(new TypeCommand(msg, CurrentTransaction));
+                        await _mediator.Send(new TypeCommand(msg, CurrentTransaction));
+                        return await _mediator.Send(new DateQuery(msg));
                     case TransactionStep.Date:
-                        return await _mediator.Send(new DateCommand(msg, CurrentTransaction));
+                        await _mediator.Send(new DateCommand(msg, CurrentTransaction));
+                        return await _mediator.Send(new AccountFromQuery(msg));
                     case TransactionStep.AccountFrom:
-                        return await _mediator.Send(new AccountFromCommand(msg, CurrentTransaction));
+                        await _mediator.Send(new AccountFromCommand(msg, CurrentTransaction));
+                        if (CurrentTransaction.Type == Transaction.TypeTransfer)
+                        {
+                            return await _mediator.Send(new AccountToQuery(msg));
+                        }
+
+                        return await _mediator.Send(new CategoryQuery(msg));
                     case TransactionStep.AccountToOrCategory:
-                        var reply = await _mediator.Send(new AccountToOrCategoryCommand(msg, CurrentTransaction));
+                        await _mediator.Send(new AccountToOrCategoryCommand(msg, CurrentTransaction));
                         RemoveTransaction();
-                        return reply;
+                        return await _mediator.Send(new CompleteQuery(msg));
                     default:
                         throw new TransactionAbortException();
                 }

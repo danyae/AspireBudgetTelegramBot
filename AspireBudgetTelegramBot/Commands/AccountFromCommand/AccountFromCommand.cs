@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AspireBudgetTelegramBot.Commands.AccountFromCommand
 {
-    public class AccountFromCommand : IRequest<TelegramReplyMessage>
+    public class AccountFromCommand : IRequest
     {
         public TelegramMessage Message { get; private set; }
         public Transaction Transaction { get; private set; }

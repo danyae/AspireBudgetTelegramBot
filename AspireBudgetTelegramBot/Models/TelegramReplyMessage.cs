@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AspireBudgetApi.Models;
 using AspireBudgetTelegramBot.Extensions;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace AspireBudgetTelegramBot.Models
@@ -85,9 +83,9 @@ namespace AspireBudgetTelegramBot.Models
             return FromItemList(msg, accounts, "Account to?");
         }
 
-        public static TelegramReplyMessage RequestCategoryMessage(TelegramMessage msg, List<string> accounts)
+        public static TelegramReplyMessage RequestCategoryMessage(TelegramMessage msg, List<string> categories)
         {
-            return FromItemList(msg, accounts, "Category?");
+            return FromItemList(msg, categories, "Category?");
         }
 
         private static TelegramReplyMessage FromItemList(TelegramMessage msg, List<string> buttonsList, string text)

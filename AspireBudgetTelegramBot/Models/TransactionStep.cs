@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AspireBudgetTelegramBot.Models
+﻿namespace AspireBudgetTelegramBot.Models
 {
     public enum TransactionStep
     {

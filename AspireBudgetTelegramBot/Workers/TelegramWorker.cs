@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Services;
+using AspireBudgetTelegramBot.Services.BackgroundQueue;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Args;

@@ -3,9 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Services;
+using AspireBudgetTelegramBot.Services.Authentication;
+using AspireBudgetTelegramBot.Services.BackgroundQueue;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace AspireBudgetTelegramBot.Workers
 {
@@ -13,12 +14,12 @@ namespace AspireBudgetTelegramBot.Workers
     {
         private readonly IBackgroundQueue<TelegramMessage> _incomingQueue;
         private readonly IBackgroundQueue<TelegramReplyMessage> _outgoingQueue;
-        private readonly IAuthenticateService _authService;
+        private readonly IAuthenticationService _authService;
         private readonly IServiceProvider _serviceProvider;
 
         public IncomingMessageWorker(IBackgroundQueue<TelegramMessage> incomingQueue,
             IBackgroundQueue<TelegramReplyMessage> outgoingQueue,
-            IAuthenticateService authService,
+            IAuthenticationService authService,
             IServiceProvider serviceProvider
             )
         {
