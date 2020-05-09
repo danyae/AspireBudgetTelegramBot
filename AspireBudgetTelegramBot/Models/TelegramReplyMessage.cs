@@ -17,7 +17,7 @@ namespace AspireBudgetTelegramBot.Models
             {
                 ChatId = msg.ChatId,
                 ReplyMarkup = new ReplyKeyboardRemove(),
-                Text = dashboardRows.ToSummary()
+                Text = dashboardRows.ToHtmlSummary()
             };
         }
         

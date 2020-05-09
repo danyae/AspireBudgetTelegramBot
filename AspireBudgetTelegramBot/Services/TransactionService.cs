@@ -11,6 +11,7 @@ using AspireBudgetTelegramBot.Queries.AccountFromQuery;
 using AspireBudgetTelegramBot.Queries.AccountToQuery;
 using AspireBudgetTelegramBot.Queries.CategoryQuery;
 using AspireBudgetTelegramBot.Queries.CompleteQuery;
+using AspireBudgetTelegramBot.Queries.CompleteTransactionQuery;
 using AspireBudgetTelegramBot.Queries.DashboardQuery;
 using AspireBudgetTelegramBot.Queries.DateQuery;
 using AspireBudgetTelegramBot.Queries.TypeQuery;
@@ -72,8 +73,9 @@ namespace AspireBudgetTelegramBot.Services
                         return await _mediator.Send(new CategoryQuery(msg));
                     case TransactionStep.AccountToOrCategory:
                         await _mediator.Send(new AccountToOrCategoryCommand(msg, CurrentTransaction));
+                        var reply = await _mediator.Send(new CompleteTransactionQuery(msg, CurrentTransaction));
                         RemoveTransaction();
-                        return await _mediator.Send(new CompleteQuery(msg));
+                        return reply;
                     default:
                         throw new TransactionAbortException();
                 }

@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using AspireBudgetTelegramBot.Models;
 
 namespace AspireBudgetTelegramBot.Queries.CompleteQuery

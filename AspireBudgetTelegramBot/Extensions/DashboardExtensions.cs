@@ -7,7 +7,7 @@ namespace AspireBudgetTelegramBot.Extensions
 {
     public static class DashboardExtensions
     {
-        public static string ToSummary(this List<DashboardRow> dashboard)
+        public static string ToHtmlSummary(this List<DashboardRow> dashboard)
         {
             var sb = new StringBuilder();
             if (dashboard.Any())
@@ -24,16 +24,24 @@ namespace AspireBudgetTelegramBot.Extensions
                 if (row.Type == DashboardRowType.Group)
                 {
                     sb.AppendLine();
-                    sb.AppendLine($"<b>{row.Name}</b>");
                 }
-                else
-                {
-                    var emoji = row.Available < 0 ? "❗️" : "";
-                    sb.AppendLine($"{row.Name}: {emoji}{row.Available} | {row.Spent} | {row.Budgeted}");
-                }
+                sb.AppendLine(row.ToHtmlSummary());
             }
 
             return sb.ToString();
+        }
+
+        public static string ToHtmlSummary(this DashboardRow dashboardRow)
+        {
+            if (dashboardRow.Type == DashboardRowType.Group)
+            {
+                return $"<b>{dashboardRow.Name}</b>";
+            }
+            else
+            {
+                var emoji = dashboardRow.Available < 0 ? "❗️" : "";
+                return $"{dashboardRow.Name}: {emoji}{dashboardRow.Available} | {dashboardRow.Spent} | {dashboardRow.Budgeted}";
+            }
         }
     }
 }
