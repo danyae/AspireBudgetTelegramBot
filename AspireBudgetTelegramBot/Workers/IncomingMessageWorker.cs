@@ -66,7 +66,7 @@ namespace AspireBudgetTelegramBot.Workers
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-                    switch (msg.Text)
+                    switch (msg.Text.ToLower())
                     {
                         case "dashboard":
                             reply = await transactionService.GetDashboardAsync(msg);
