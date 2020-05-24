@@ -3,7 +3,6 @@ WORKDIR /app
 
 # Copy csproj and restore as distinct layers
 COPY *.sln ./
-COPY NuGet.config ./
 COPY AspireBudgetTelegramBot/*.csproj ./AspireBudgetTelegramBot/
 RUN dotnet restore
 
