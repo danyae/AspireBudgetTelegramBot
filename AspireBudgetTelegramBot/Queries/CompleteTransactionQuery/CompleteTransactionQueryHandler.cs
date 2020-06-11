@@ -27,7 +27,7 @@ namespace AspireBudgetTelegramBot.Queries.CompleteTransactionQuery
         
         public async Task<TelegramReplyMessage> Handle(CompleteTransactionQuery request, CancellationToken cancellationToken)
         {
-            if (request.Transaction.Type == Transaction.TypeTransfer)
+            if (request.Transaction.Type == Transaction.TypeTransfer || request.Transaction.Category == "Available to budget")
             {
                 return TelegramReplyMessage.OperationCompletedMessage(request.Message);
             }
