@@ -4,6 +4,7 @@ WORKDIR /app
 # Copy csproj and restore as distinct layers
 COPY *.sln ./
 COPY AspireBudgetTelegramBot/*.csproj ./AspireBudgetTelegramBot/
+COPY AspireBudgetTelegramBot.Infrastructure/*.csproj ./AspireBudgetTelegramBot.Infrastructure/
 RUN dotnet restore
 
 # Copy everything else and build
