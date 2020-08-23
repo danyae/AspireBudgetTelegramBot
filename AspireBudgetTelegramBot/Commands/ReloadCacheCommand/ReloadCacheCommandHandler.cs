@@ -8,7 +8,7 @@ namespace AspireBudgetTelegramBot.Commands.ReloadCacheCommand
     /// <summary>
     /// Reload internal cache
     /// </summary>
-    public class ReloadCacheCommandHandler : AsyncRequestHandler<ReloadCacheCommand>
+    public class ReloadCacheCommandHandler : IRequestHandler<ReloadCacheCommand>
     {
         private readonly AspireApiService _api;
         
@@ -16,10 +16,11 @@ namespace AspireBudgetTelegramBot.Commands.ReloadCacheCommand
         {
             _api = api;
         }
-        
-        protected override async Task Handle(ReloadCacheCommand request, CancellationToken cancellationToken)
+
+        async Task<Unit> IRequestHandler<ReloadCacheCommand, Unit>.Handle(ReloadCacheCommand request, CancellationToken cancellationToken)
         {
             await _api.ReloadCacheAsync();
+            return Unit.Value;
         }
     }
 }

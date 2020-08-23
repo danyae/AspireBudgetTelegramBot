@@ -10,7 +10,6 @@ using AspireBudgetTelegramBot.Models;
 using AspireBudgetTelegramBot.Queries.AccountFromQuery;
 using AspireBudgetTelegramBot.Queries.AccountToQuery;
 using AspireBudgetTelegramBot.Queries.CategoryQuery;
-using AspireBudgetTelegramBot.Queries.CompleteQuery;
 using AspireBudgetTelegramBot.Queries.CompleteTransactionQuery;
 using AspireBudgetTelegramBot.Queries.DashboardQuery;
 using AspireBudgetTelegramBot.Queries.DateQuery;
@@ -42,8 +41,8 @@ namespace AspireBudgetTelegramBot.Services
         
         public async Task<TelegramReplyMessage> ReloadCacheAsync(TelegramMessage msg)
         {
-            await _mediator.Publish(new ReloadCacheCommand(msg));
-            return await _mediator.Send(new CompleteQuery(msg));
+            await _mediator.Send(new ReloadCacheCommand(msg));
+            return TelegramReplyMessage.OperationCompletedMessage(msg);
         } 
         
         public async Task<TelegramReplyMessage> ProcessTransactionStepAsync(TelegramMessage msg)

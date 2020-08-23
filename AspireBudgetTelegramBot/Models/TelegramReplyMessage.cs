@@ -10,7 +10,7 @@ namespace AspireBudgetTelegramBot.Models
     public class TelegramReplyMessage : TelegramMessage
     {
         public IReplyMarkup ReplyMarkup { get; set; }
-        
+
         public static TelegramReplyMessage DashboardMessage(TelegramMessage msg, List<DashboardRow> dashboardRows)
         {
             return new TelegramReplyMessage
@@ -20,7 +20,7 @@ namespace AspireBudgetTelegramBot.Models
                 Text = dashboardRows.ToHtmlSummary()
             };
         }
-        
+
         public static TelegramReplyMessage UnknownOperationMessage(TelegramMessage msg)
         {
             return new TelegramReplyMessage
@@ -48,8 +48,8 @@ namespace AspireBudgetTelegramBot.Models
                 ChatId = msg.ChatId,
                 ReplyMarkup = new ReplyKeyboardMarkup(new[]
                 {
-                    new KeyboardButton(Transaction.TypeOutcome), 
-                    new KeyboardButton(Transaction.TypeIncome), 
+                    new KeyboardButton(Transaction.TypeOutcome),
+                    new KeyboardButton(Transaction.TypeIncome),
                     new KeyboardButton(Transaction.TypeTransfer),
                 }),
                 Text = "Type of transaction?"
@@ -58,18 +58,25 @@ namespace AspireBudgetTelegramBot.Models
 
         public static TelegramReplyMessage RequestDateMessage(TelegramMessage msg)
         {
-            var buttons = new List<KeyboardButton>();
+            var keyboard = new List<List<KeyboardButton>>();
+
             var now = DateTime.Today;
-            var minDay = now.AddDays(-7);
-            for (var day = DateTime.Now; day > minDay; day = day.AddDays(-1))
+            var days = Enumerable.Range(now.AddDays(-7).Day, 9).ToArray(); // including tomorrow
+            Array.Reverse(days);
+
+            for (var i = 0; i < (float) days.Length / 3; i++)
             {
-                buttons.Add(new KeyboardButton(day.ToString("dd")));
+                keyboard.Add(new List<KeyboardButton>(days.Skip(i * 3).Take(3)
+                    .Select(x => x == now.Day ? 
+                        new KeyboardButton($"{x:00} ✅") : 
+                        new KeyboardButton(x.ToString("00")))));
             }
+
             return new TelegramReplyMessage
             {
                 ChatId = msg.ChatId,
                 Text = "Day?",
-                ReplyMarkup = new ReplyKeyboardMarkup(buttons)
+                ReplyMarkup = new ReplyKeyboardMarkup(keyboard)
             };
         }
 
@@ -92,9 +99,10 @@ namespace AspireBudgetTelegramBot.Models
         {
             var keyboard = new List<List<KeyboardButton>>();
 
-            for (var i = 0; i < (float)buttonsList.Count / 2; i++)
+            for (var i = 0; i < (float) buttonsList.Count / 2; i++)
             {
-                keyboard.Add(new List<KeyboardButton>(buttonsList.Skip(i * 2).Take(2).Select(x => new KeyboardButton(x))));
+                keyboard.Add(
+                    new List<KeyboardButton>(buttonsList.Skip(i * 2).Take(2).Select(x => new KeyboardButton(x))));
             }
 
             return new TelegramReplyMessage

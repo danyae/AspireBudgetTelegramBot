@@ -35,53 +35,67 @@ namespace AspireBudgetTelegramBot.Workers
             {
                 var msg = await _incomingQueue.ReadAsync(stoppingToken);
 
-                if (!_authService.IsAuthenticated(msg.ChatId))
+                if (!await AuthenticateChat(msg.ChatId, msg.Text))
                 {
-                    if (_authService.IsBanned(msg.ChatId))
-                    {
-                        continue;
-                    }
-
-                    if (_authService.AuthenticateChat(msg.ChatId, msg.Text))
-                    {
-                        await _outgoingQueue.Write(new TelegramReplyMessage
-                        {
-                            ChatId = msg.ChatId,
-                            Text = "Authenticated"
-                        });
-                    }
-                    else
-                    {
-                        await _outgoingQueue.Write(new TelegramReplyMessage
-                        {
-                            ChatId = msg.ChatId,
-                            Text = "Please enter your password"
-                        });
-                    }
-
                     continue;
                 }
 
-                TelegramReplyMessage reply;
-                using (var scope = _serviceProvider.CreateScope())
-                {
-                    var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
-                    switch (msg.Text.ToLower())
-                    {
-                        case "dashboard":
-                            reply = await transactionService.GetDashboardAsync(msg);
-                            break;
-                        case "reload":
-                            await transactionService.ReloadCacheAsync(msg);
-                            reply = TelegramReplyMessage.OperationCompletedMessage(msg);
-                            break;
-                        default:
-                            reply = await transactionService.ProcessTransactionStepAsync(msg);
-                            break;
-                    }
-                }
-                await _outgoingQueue.Write(reply);
+                await ProcessMessage(msg);
             }
+        }
+
+        private async Task<bool> AuthenticateChat(long chatId, string text)
+        {
+            if (_authService.IsBanned(chatId))
+            {
+                return false;
+            }
+            
+            if (_authService.IsAuthenticated(chatId))
+            {
+                return true;
+            }
+
+            if (_authService.AuthenticateChat(chatId, text))
+            {
+                await _outgoingQueue.Write(new TelegramReplyMessage
+                {
+                    ChatId = chatId,
+                    Text = "Authenticated"
+                });
+                
+                return false; // do not process
+            }
+            
+            await _outgoingQueue.Write(new TelegramReplyMessage
+            {
+                ChatId = chatId,
+                Text = "Please enter your password"
+            });
+
+            return false;
+        }
+
+        private async Task ProcessMessage(TelegramMessage msg)
+        {
+            TelegramReplyMessage reply;
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
+                switch (msg.Text.ToLower())
+                {
+                    case "dashboard":
+                        reply = await transactionService.GetDashboardAsync(msg);
+                        break;
+                    case "reload":
+                        reply = await transactionService.ReloadCacheAsync(msg);
+                        break;
+                    default:
+                        reply = await transactionService.ProcessTransactionStepAsync(msg);
+                        break;
+                }
+            }
+            await _outgoingQueue.Write(reply);
         }
     }
 }

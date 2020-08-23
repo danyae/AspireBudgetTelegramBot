@@ -33,7 +33,8 @@ namespace AspireBudgetTelegramBot.Queries.CompleteTransactionQuery
             }
             
             var dashboard = await _apiService.GetDashboardAsync();
-            var row = dashboard.FirstOrDefault(x => x.Name == request.Transaction.Category);
+            var row = dashboard.FirstOrDefault(x => x.Name == request.Transaction.Category && 
+                                                    x.Type == DashboardRowType.Category);
             if (row == null)
             {
                 _logger.LogError($"No dashboard category found to send for {request.Transaction.Category}: " +
