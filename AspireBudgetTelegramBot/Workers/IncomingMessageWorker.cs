@@ -35,10 +35,10 @@ namespace AspireBudgetTelegramBot.Workers
             {
                 var msg = await _incomingQueue.ReadAsync(stoppingToken);
 
-                // if (!await AuthenticateChat(msg.ChatId, msg.Text))
-                // {
-                //     continue;
-                // }
+                if (!await AuthenticateChat(msg.ChatId, msg.Text))
+                {
+                    continue;
+                }
 
                 await ProcessMessage(msg);
             }
