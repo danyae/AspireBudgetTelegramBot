@@ -38,52 +38,6 @@ namespace AspireBudgetTelegramBot.Commands.AccountToOrCategoryCommand
                 }
                 request.Transaction.Category = request.Message.Text;
             }
-
-            switch (request.Transaction.Type)
-            {
-                case Transaction.TypeOutcome:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = request.Transaction.AccountFrom,
-                        Category = request.Transaction.Category,
-                        Cleared = "🆗",
-                        Date = request.Transaction.Date.Value,
-                        Outflow = request.Transaction.Sum.Value,
-                        Memo = request.Transaction.Memo
-                    });
-                    break;
-                case Transaction.TypeIncome:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = request.Transaction.AccountFrom,
-                        Category = request.Transaction.Category,
-                        Cleared = "🆗",
-                        Date = request.Transaction.Date.Value,
-                        Inflow = request.Transaction.Sum.Value,
-                        Memo = request.Transaction.Memo
-                    });
-                    break;
-                case Transaction.TypeTransfer:
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = request.Transaction.AccountFrom,
-                        Category = "↕️ Account Transfer",
-                        Cleared = "🆗",
-                        Date = request.Transaction.Date.Value,
-                        Outflow = request.Transaction.Sum.Value,
-                        Memo = request.Transaction.Memo
-                    });
-                    await _api.SaveTransactionAsync(new AspireBudgetApi.Models.Transaction
-                    {
-                        Account = request.Transaction.AccountTo,
-                        Category = "↕️ Account Transfer",
-                        Cleared = "🆗",
-                        Date = request.Transaction.Date.Value,
-                        Inflow = request.Transaction.Sum.Value,
-                        Memo = request.Transaction.Memo
-                    });
-                    break;
-            }
         }
     }
 }

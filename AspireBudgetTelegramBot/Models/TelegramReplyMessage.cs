@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using AspireBudgetApi.Models;
 using AspireBudgetTelegramBot.Extensions;
+using AspireBudgetTelegramBot.Infrastructure.Models;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace AspireBudgetTelegramBot.Models
 {
     public class TelegramReplyMessage : TelegramMessage
     {
+        public static string YesAnswer = "👍 yes";
+        public static string NoAnswer = "👎 no";
+        
         public IReplyMarkup ReplyMarkup { get; set; }
 
         public static TelegramReplyMessage DashboardMessage(TelegramMessage msg, List<DashboardRow> dashboardRows)
@@ -38,6 +42,24 @@ namespace AspireBudgetTelegramBot.Models
                 ChatId = msg.ChatId,
                 Text = "👌",
                 ReplyMarkup = new ReplyKeyboardRemove()
+            };
+        }
+        
+        public static TelegramReplyMessage RequestMemoHintMessage(TelegramMessage msg, MemoItem memo)
+        {
+            return new TelegramReplyMessage
+            {
+                ChatId = msg.ChatId,
+                ReplyMarkup = new ReplyKeyboardMarkup(new[]
+                {
+                    new KeyboardButton(YesAnswer),
+                    new KeyboardButton(NoAnswer),
+                }),
+                Text = "Use this data?\n" +
+                       $"Type {memo.Type}\n" +
+                       $"Category: {memo.Category ?? "🚫"}\n" +
+                       $"Account from: {memo.AccountFrom ?? "🚫"}\n" +
+                       $"Account to: {memo.AccountTo ?? "🚫"}\n"
             };
         }
 

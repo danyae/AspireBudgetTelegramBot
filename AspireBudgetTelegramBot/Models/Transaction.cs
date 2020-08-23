@@ -1,4 +1,5 @@
 ﻿using System;
+using AspireBudgetTelegramBot.Infrastructure.Models;
 
 namespace AspireBudgetTelegramBot.Models
 {
@@ -15,12 +16,20 @@ namespace AspireBudgetTelegramBot.Models
         public string AccountTo { get;set; }
         public string Category { get; set; }
         public string Memo { get; set; }
+        public MemoItem MemoHint { get; set; }
+        
+        public bool UseMemo { get; set; }
 
         public TransactionStep GetCurrentStep()
         {
             if (Sum == null)
             {
                 return TransactionStep.Sum;
+            }
+
+            if (Type == null && !MemoHint.IsEmpty())
+            {
+                return TransactionStep.MemoHint;
             }
 
             if (Type == null)
@@ -43,7 +52,7 @@ namespace AspireBudgetTelegramBot.Models
                 return TransactionStep.AccountToOrCategory;
             }
 
-            return TransactionStep.FinalStep;
+            return TransactionStep.MemoHintAppliedStep;
         }
     }
 }

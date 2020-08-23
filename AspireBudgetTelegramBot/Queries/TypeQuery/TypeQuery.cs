@@ -6,7 +6,6 @@ namespace AspireBudgetTelegramBot.Queries.TypeQuery
     {
         public TypeQuery(TelegramMessage msg) : base(msg)
         {
-            
         }
     }
 }

@@ -13,7 +13,13 @@ namespace AspireBudgetTelegramBot.Commands.DateCommand
     {
         protected override Task Handle(DateCommand request, CancellationToken cancellationToken)
         {
-            if (byte.TryParse(request.Message.Text, out var day) && day > 0 && day < 32)
+            if (request.Message.Text.Length < 2)
+            {
+                throw new TransactionAbortException();
+            }
+            
+            var date = request.Message.Text[..2];
+            if (byte.TryParse(date, out var day) && day > 0 && day < 32)
             {
                 var transactionDate = DateTime.Now;
                 if (transactionDate.Day > day)

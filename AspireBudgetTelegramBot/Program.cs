@@ -1,3 +1,4 @@
+using AspireBudgetTelegramBot.Infrastructure.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AspireBudgetTelegramBot.Models;
@@ -7,6 +8,7 @@ using AspireBudgetTelegramBot.Services.Authentication;
 using AspireBudgetTelegramBot.Services.BackgroundQueue;
 using AspireBudgetTelegramBot.Workers;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AspireBudgetTelegramBot
 {
@@ -14,7 +16,11 @@ namespace AspireBudgetTelegramBot
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var hostBuilder = CreateHostBuilder(args).Build();
+            
+            UpdateDatabase(hostBuilder);
+            
+            hostBuilder.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -24,6 +30,7 @@ namespace AspireBudgetTelegramBot
                 {
                     services.Configure<TelegramOptions>(hostContext.Configuration.GetSection(nameof(TelegramOptions)))
                         .Configure<AspireOptions>(hostContext.Configuration.GetSection(nameof(AspireOptions)))
+                        .AddDbContext<AspireBudgetDbContext>()
                         .AddSingleton(typeof(IBackgroundQueue<TelegramMessage>),
                             typeof(BackgroundQueue<TelegramMessage>))
                         .AddSingleton(typeof(IBackgroundQueue<TelegramReplyMessage>),
@@ -36,5 +43,16 @@ namespace AspireBudgetTelegramBot
                         .AddHostedService<IncomingMessageWorker>()
                         .AddMediatR(typeof(Program));
                 });
+        
+        private static void UpdateDatabase(IHost app)
+        {
+            using (var serviceScope = app.Services.CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<AspireBudgetDbContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
+        }
     }
 }

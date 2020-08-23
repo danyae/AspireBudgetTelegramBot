@@ -20,7 +20,9 @@ namespace AspireBudgetTelegramBot.Commands.SumCommand
 
             request.Transaction.Sum = sum;
             request.Transaction.Memo = msgParts.Length > 1 ? msgParts[1] : null;
-            
+
+            if (request.Transaction.Memo != null) request.Transaction.Memo = request.Transaction.Memo.Trim();
+
             return Task.CompletedTask;
         }
     }

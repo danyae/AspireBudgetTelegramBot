@@ -3,10 +3,11 @@
     public enum TransactionStep
     {
         Sum,
+        MemoHint,
         Type,
         Date,
         AccountFrom,
         AccountToOrCategory,
-        FinalStep
+        MemoHintAppliedStep
     }
 }

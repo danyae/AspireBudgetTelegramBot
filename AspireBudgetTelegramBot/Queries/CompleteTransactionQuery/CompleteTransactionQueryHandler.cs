@@ -4,7 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspireBudgetApi.Models;
 using AspireBudgetTelegramBot.Extensions;
+using AspireBudgetTelegramBot.Infrastructure.Database;
 using AspireBudgetTelegramBot.Models;
+using AspireBudgetTelegramBot.Queries.RequestMemoHint;
 using AspireBudgetTelegramBot.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -18,7 +20,7 @@ namespace AspireBudgetTelegramBot.Queries.CompleteTransactionQuery
     {
         private readonly AspireApiService _apiService;
         private readonly ILogger<CompleteTransactionQueryHandler> _logger;
-        
+
         public CompleteTransactionQueryHandler(AspireApiService apiService, ILogger<CompleteTransactionQueryHandler> logger)
         {
             _apiService = apiService;

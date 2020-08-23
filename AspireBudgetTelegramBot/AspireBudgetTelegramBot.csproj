@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="3.0.0" />
     <PackageReference Include="AspireBudgetApi" Version="1.0.0" />
     <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
     <PackageReference Include="MediatR" Version="8.0.1" />
@@ -24,5 +25,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspireBudgetTelegramBot.Infrastructure\AspireBudgetTelegramBot.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
