@@ -27,7 +27,7 @@ namespace AspireBudgetTelegramBot.Models
                 return TransactionStep.Sum;
             }
 
-            if (Type == null && !MemoHint.IsEmpty())
+            if (Type == null && MemoHint != null && !MemoHint.IsEmpty())
             {
                 return TransactionStep.MemoHint;
             }
