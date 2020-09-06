@@ -10,7 +10,7 @@ namespace AspireBudgetTelegramBot.Infrastructure.Database
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=database.sqlite");
+            optionsBuilder.UseSqlite("Data Source=/db/aspire.sqlite");
         }
         
         /// <inheritdoc />

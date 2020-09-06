@@ -83,7 +83,12 @@ namespace AspireBudgetTelegramBot.Models
             var keyboard = new List<List<KeyboardButton>>();
 
             var now = DateTime.Today;
-            var days = Enumerable.Range(now.AddDays(-7).Day, 9).ToArray(); // including tomorrow
+            var lastWeek = now.AddDays(-7);
+            var days = new int[9];
+            for (int i = 0; i < 9; i++) // including tomorrow
+            {
+                days[i] = lastWeek.AddDays(i).Day;
+            }
             Array.Reverse(days);
 
             for (var i = 0; i < (float) days.Length / 3; i++)
