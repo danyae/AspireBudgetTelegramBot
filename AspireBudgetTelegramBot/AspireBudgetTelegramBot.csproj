@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="3.0.0" />
-    <PackageReference Include="AspireBudgetApi" Version="1.0.0" />
+    <PackageReference Include="AspireBudgetApi" Version="2.0.1" />
     <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
     <PackageReference Include="MediatR" Version="8.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />

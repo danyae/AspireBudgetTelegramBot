@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using AspireBudgetApi;
 using AspireBudgetApi.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,7 @@ namespace AspireBudgetTelegramBot.Services
 {
     public class AspireApiService : IDisposable
     {
-        private readonly AspireBudgetApi.AspireBudgetApi _api;
+        private readonly IAspireApi _api;
 
         private List<string> _categories;
         private List<string> _accounts;
@@ -21,7 +22,7 @@ namespace AspireBudgetTelegramBot.Services
             )
         {
             string json = Encoding.UTF8.GetString(Convert.FromBase64String(options.Value.ApiCredentialsBase64));
-            _api = new AspireBudgetApi.AspireBudgetApi(json, options.Value.SheetId, logger);
+            _api = new AspireApi(json, options.Value.SheetId, logger);
         }
 
         public async Task<List<string>> GetCategoriesAsync()

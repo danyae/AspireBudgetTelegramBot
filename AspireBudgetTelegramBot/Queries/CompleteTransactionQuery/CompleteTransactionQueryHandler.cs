@@ -41,13 +41,12 @@ namespace AspireBudgetTelegramBot.Queries.CompleteTransactionQuery
             {
                 _logger.LogError($"No dashboard category found to send for {request.Transaction.Category}: " +
                                  $"{string.Join(", ", dashboard.Select(x => x.Name).ToArray())}");
-                row = new DashboardRow
-                {
-                    Name = "Error",
-                };
+                row = new DashboardRow(
+                    "Error", DashboardRowType.Category, 0, 0, 0, 0, 0, false
+                );
             }
             var sb = new StringBuilder();
-            sb.AppendLine("👌 Available | Spent | Budgeted");
+            sb.AppendLine("👌 Available | 💸 Spent | 💰 Budgeted");
             sb.AppendLine(row.ToHtmlSummary());
             
             var reply = new TelegramReplyMessage
