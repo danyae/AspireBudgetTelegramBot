@@ -15,21 +15,23 @@ namespace AspireBudgetTelegramBot.Commands.DateCommand
         {
             if (request.Message.Text.Length < 2)
             {
-                throw new TransactionAbortException();
+                throw new TransactionAbortException("Date length < 2 symbols");
             }
             
             var date = request.Message.Text[..2];
             if (byte.TryParse(date, out var day) && day > 0 && day < 32)
             {
-                var transactionDate = DateTime.Now;
-                if (transactionDate.Day > day)
+                var now = DateTime.Now;
+                var tomorrow = now.AddDays(1);
+                var transactionDate = now;
+                
+                if (now.Day > day)
                 {
-                    transactionDate = new DateTime(transactionDate.Year, transactionDate.Month, day);
+                    transactionDate = day == tomorrow.Day ? tomorrow : new DateTime(now.Year, now.Month, day);
                 }
-
-                if (transactionDate.Day < day)
+                else if (now.Day < day)
                 {
-                    transactionDate = new DateTime(transactionDate.Year, transactionDate.Month-1, day);
+                    transactionDate = new DateTime(now.Year, now.Month-1, day);
                 }
 
                 request.Transaction.Date = transactionDate;
@@ -37,7 +39,7 @@ namespace AspireBudgetTelegramBot.Commands.DateCommand
                 return Task.CompletedTask;
             }
 
-            throw new TransactionAbortException();
+            throw new TransactionAbortException("Can't parse date");
         }
     }
 }

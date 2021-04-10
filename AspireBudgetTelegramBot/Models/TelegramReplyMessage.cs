@@ -12,6 +12,8 @@ namespace AspireBudgetTelegramBot.Models
     {
         public static string YesAnswer = "👍 yes";
         public static string NoAnswer = "👎 no";
+        public static int DatesCount = 9;
+        public static int DatesInRowCount = 3;
         
         public IReplyMarkup ReplyMarkup { get; set; }
 
@@ -84,16 +86,16 @@ namespace AspireBudgetTelegramBot.Models
 
             var now = DateTime.Today;
             var lastWeek = now.AddDays(-7);
-            var days = new int[9];
-            for (int i = 0; i < 9; i++) // including tomorrow
+            var days = new int[DatesCount];
+            for (int i = 0; i < DatesCount; i++) // including tomorrow
             {
                 days[i] = lastWeek.AddDays(i).Day;
             }
             Array.Reverse(days);
 
-            for (var i = 0; i < (float) days.Length / 3; i++)
+            for (var i = 0; i < (float) days.Length / DatesInRowCount; i++)
             {
-                keyboard.Add(new List<KeyboardButton>(days.Skip(i * 3).Take(3)
+                keyboard.Add(new List<KeyboardButton>(days.Skip(i * DatesInRowCount).Take(DatesInRowCount)
                     .Select(x => x == now.Day ? 
                         new KeyboardButton($"{x:00} ✅") : 
                         new KeyboardButton(x.ToString("00")))));
